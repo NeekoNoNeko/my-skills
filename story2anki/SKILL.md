@@ -3,9 +3,14 @@ name: story2anki
 description: >-
   Imports markdown files into Anki flashcards via AnkiConnect. Supports Cloze
   (填空卡) for comprehensible input vocabulary learning and Basic (基础卡) for
-  general content. Automatically detects {{c1::...}} markers. Use when the user
-  asks to import a markdown file into Anki, mentions "导入" a markdown file to
-  "anki", or needs to sync comprehensible-storyteller output into Anki.
+  general content. Automatically detects {{c1::...}} markers and chooses the
+  correct note type. MUST trigger when: the user asks to import a markdown file
+  into Anki, export vocabulary stories to Anki, sync generated content to Anki,
+  says "导入" to "anki", mentions needing flashcards from a file, or wants to
+  create Anki cards from structured text. Also triggers when
+  comprehensible-storyteller has generated stories and the user needs spaced
+  repetition review. This is the dedicated bridge between CLI-generated
+  learning content and Anki.
 ---
 
 # Markdown to Anki Importer
@@ -53,8 +58,16 @@ python .claude/skills/story2anki/scripts/import_md_to_anki.py <markdown_file> [-
 由 comprehensible-storyteller 生成的生词故事文件（含 `{{c1::目标词}}` 标记）可直接导入 Anki，形成可理解输入填空卡。
 
 ### Prerequisites
-1. Anki must be running with [AnkiConnect](https://ankiweb.net/shared/info/2055492159) plugin installed
-2. Python 3.8+ required
+1. **Anki** must be running with [AnkiConnect](https://ankiweb.net/shared/info/2055492159) plugin installed
+2. **Python** 3.8+ required
+
+### Troubleshooting
+
+| 问题 | 检查事项 |
+|---|---|
+| `Cannot connect to AnkiConnect` | Anki 未运行或 AnkiConnect 插件未安装。打开 Anki → 工具 → 插件 → 确保 AnkiConnect 已启用 |
+| `Skipped (duplicate)` | 该卡片已存在于 Anki 中。脚本默认跳过重复，不会覆盖。如需重新导入，先在 Anki 中删除旧卡片 |
+| 卡片显示异常 | 确认故事正文是纯文本，没有额外的 YAML frontmatter 干扰解析 |
 
 ## Example
 

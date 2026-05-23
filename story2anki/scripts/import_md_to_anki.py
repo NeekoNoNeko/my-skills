@@ -177,8 +177,9 @@ def main():
     print(f"Connecting to AnkiConnect...")
     ensure_deck(deck_name)
 
-    basic_model = f"{deck_name} (Basic)"
-    cloze_model = f"{deck_name} (Cloze)"
+    # Use fixed model names (not deck-dependent) to avoid model bloat
+    basic_model = "story2anki-Basic"
+    cloze_model = "story2anki-Cloze"
     if has_basic:
         ensure_model(basic_model, is_cloze=False)
     if has_cloze:

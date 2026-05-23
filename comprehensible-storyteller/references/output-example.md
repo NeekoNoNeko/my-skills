@@ -22,4 +22,4 @@ Follow these steps to {{c1::refuel}} your car:
 7. Put the handle back in its place.
 8. Close the gas tank door.
 9. Go inside and pay for the gas.
-Always be careful when you {{c1::refuel}}. Do not use your phone near the pump. Stay safe.
+Always be careful when you refuel. Do not use your phone near the pump. Stay safe.
