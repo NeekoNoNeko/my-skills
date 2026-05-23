@@ -2,26 +2,24 @@
 tags:
   - 词汇
 ---
-# A Complaint at the Hotel
+# At the Gas Station
 
-A man named Mr. Brown stayed at a hotel last week. He was not happy with his room. The bed was old and the water was cold. So he went to the front desk. He lodged a complaint. He said, "My room is not clean and the water is cold. I want a new room." The hotel manager said sorry and gave him a better room. Mr. Brown was happy with the answer. He said, "It is good to tell people when you are not happy."
+Emma and Tom are driving to the beach. The car makes a noise and the gas light turns on. Tom looks at the light. He says, "We need to refuel. The car has very little gas." Emma looks around. She says, "There is a gas station near here. I saw it five minutes ago." Tom drives to the station. He stops next to the pump. He opens the gas tank and fills it with gas. Emma asks, "How much does it cost?" Tom says, "Fifty dollars. Gas is very expensive now." Emma says, "That is a lot of money." Tom says, "Yes, but we need gas to get to the beach." They finish and get back on the road.
 
-# A Fish Bone
+# A Long Road Trip
 
-Last night, I ate fish for dinner. The fish was very good. But then I felt something in my throat. A small bone got stuck there. It lodged in my throat. I could not speak well. I drank some water, but the bone did not move. My mother saw my face and asked, "What is wrong?" I pointed to my throat. She gave me a piece of bread. I ate it and the bone went down. I felt much better after that.
+Last summer, my family drove to the mountains. It was a very long drive. We had to refuel two times on the way. My father stopped at a gas station. He put gas in the car. My mother bought drinks and snacks for everyone. We rested for a few minutes. Then we got back in the car. After five hours, we arrived at the mountains. The trees were green and the air was fresh. My mother said, "The drive was long, but it was fun." I was happy we made it to the mountains.
 
-# Lodge Rules
+# How to Refuel a Car
 
-Welcome to Pine Forest Lodge!
-
-Please read these rules during your stay:
-
-1. Check-in time is after 2 PM.
-2. Check-out time is before 11 AM.
-3. Please keep the lodge clean.
-4. Do not make loud noise after 10 PM.
-5. You can use the fireplace, but be careful with fire.
-6. Do not leave food outside. Animals may come.
-7. If you have a problem, please tell the lodge manager.
-
-We hope you enjoy your stay at our lodge!
+Follow these steps to refuel your car:
+1. Stop the car near the gas pump.
+2. Turn off the engine.
+3. Open the gas tank door.
+4. Take the pump handle and put it in the tank.
+5. Pull the handle to start the gas flow.
+6. Wait until the tank is full.
+7. Put the handle back in its place.
+8. Close the gas tank door.
+9. Go inside and pay for the gas.
+Always be careful when you refuel. Do not use your phone near the pump. Stay safe.
