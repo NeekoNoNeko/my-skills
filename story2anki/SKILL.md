@@ -1,12 +1,14 @@
 ---
 name: story2anki
 description: >-
-  将 Markdown 文件导出为 .apkg（Anki 牌组包）文件。支持 Cloze（填空卡）用于可
-  理解输入词汇学习和 Basic（基础卡）用于通用内容。自动检测 {{c1::...}} 标记并
-  选择正确的笔记类型。支持单文件、目录批量合并，以及 AnkiConnect 自动导入，导入
+  将 Markdown 文件导出为 .apkg（Anki 牌组包）文件。使用 Cloze（填空卡）格式，
+  保留 {{c1::...}} 填空标记用于可理解输入词汇学习。自动以文件名（不含扩展名）
+  作为标签，给同一个词的所有卡片打同一标签（如 contemplate.md → #contemplate），
+  方便集中复习或导出。支持单文件、目录批量合并，以及 AnkiConnect 自动导入，导入
   成功后可选自动清理 .apkg 文件。当用户要求导出 Markdown 到 Anki、生成闪卡、或
-  从结构化文本创建 Anki 卡片时必须触发。comprehensible-storyteller 生成故事后需
-  要间隔重复复习时也触发。是 CLI 生成的学习内容与 Anki 之间的专用桥梁。
+  从结构化文本创建 Anki 卡片时**必须**触发。comprehensible-storyteller 生成故事后
+  **总是需要**调用此技能导出到 Anki 进行间隔重复复习。是 CLI 生成的学习内容与
+  Anki 之间的专用桥梁，不涉及其他工具时也应触发。
 ---
 
 # Markdown 转 Anki 导入器
@@ -35,15 +37,15 @@ description: >-
 1. 读取文件内容（UTF-8 编码）
 2. 提取 YAML frontmatter 中的 `tags:`
 3. 按 `# 标题` 分割为独立章节（`#` 必须在行首）
-4. 检测每个章节中是否包含 `{{c1::...}}` 填空标记
-5. 有标记 → Cloze（填空卡）；无标记 → Basic（基础卡）
+4. 保留 `{{c1::...}}` 填空标记用于 Cloze 卡片
+5. 自动以文件名（不含扩展名）作为标签（如 `contemplate.md` → `#contemplate`）
+6. 全部生成 Cloze（填空卡）格式
 
 ### 3. 生成 .apkg
 
 1. 使用 genanki 库创建 Anki 牌组包
 2. Cloze 卡片：正文存入 **Text** 字段，`{{c1::目标词}}` 自动渲染为空白
-3. Basic 卡片：`{文件名}-{标题}` → **Front**，正文 → **Back**
-4. 标签 = YAML tags + 命令行 `--tags`
+3. 标签 = YAML tags + 文件名标签 + 命令行 `--tags`
 
 ### 4. 导入 Anki（可选）
 
@@ -56,7 +58,7 @@ description: >-
 
 ## 卡片格式
 
-### 有填空标记 → Cloze（填空卡）
+### Cloze（填空卡）
 
 使用 Anki 填空卡模型，遵循"从上下文推断词义"的可理解输入原则：
 
@@ -65,17 +67,13 @@ description: >-
   - **背面**: 显示完整故事，目标词高亮突出
 - **设计理念**: Anki 不是"词义记忆器"，而是"提醒你按时读下一篇故事"的定时器
 
-### 无填空标记 → Basic（基础卡）
+### Tags（标签）
 
-向后兼容模式，适用于一般内容：
+- 自动添加**文件名**作为标签（如 `contemplate.md` → `#contemplate`）
+- 同一文件的所有卡片共享同一标签，方便在 Anki 中集中复习或按词导出
+- 额外来源：YAML frontmatter 中的 tags + `--tags` 命令行参数
 
-- **正面**: `{文件名}-{章节标题}`（如 `refuel-At the Gas Station`）
-- **背面**: 章节全文
-
-### Tags（通用）
-- 来自 YAML frontmatter 中的 tags + `--tags` 额外标签
-
-### 配合 comprehensible-storyteller
+## 配合 comprehensible-storyteller
 
 由 comprehensible-storyteller 生成的生词故事文件（含 `{{c1::目标词}}` 标记）可直接生成 .apkg 导入 Anki，形成可理解输入填空卡。
 
@@ -103,6 +101,9 @@ description: >-
 | 文件无有效章节 | 警告并跳过 |
 | 目录模式下无 `.md` 文件 | 报错退出 |
 | 输出路径已存在同名 `.apkg` | 直接覆盖 |
+| Markdown 中含 `{{c1::...}}` 填空标记 | 保留，正常渲染为 Cloze 填空卡 |
+| 无填空标记的章节 | 仍生成 Cloze 卡，文本原样展示 |
+| 文件名含特殊字符 | 按原样作为标签 |
 | AnkiConnect 未运行 | 提示手动导入，不中断流程 |
 | AnkiConnect 导入时牌组不存在 | 自动创建牌组 |
 | genanki 版本过旧（< 0.13） | 报错提示升级 |
@@ -112,14 +113,17 @@ description: >-
 ## 快速参考
 
 ```bash
-# 单文件 → 填空卡
-python import_md_to_anki.py output/contemplate.md --deck 词汇故事 --tags 词汇
+# 脚本位于 skills/story2anki/scripts/ 下
+cd <skill-dir>  # 替换为 skill 实际路径
 
-# 目录批量 → 合并为一个牌组 + 自动导入 Anki
-python import_md_to_anki.py ./词汇/ --deck 词汇故事 --tags 词汇 -o all_vocab.apkg --anki
+# 单文件 → 填空卡（自动添加 #contemplate 标签）
+python scripts/import_md_to_anki.py output/contemplate.md --deck 词汇故事 --tags 词汇
+
+# 目录批量 → 合并为一个牌组（各文件自带文件名标签）+ 自动导入 Anki
+python scripts/import_md_to_anki.py ./词汇/ --deck 词汇故事 --tags 词汇 -o all_vocab.apkg --anki
 
 # 目录批量 + 自动导入 + 导入后清理 .apkg
-python import_md_to_anki.py ./词汇/ --deck 词汇故事 --tags 词汇 -o all_vocab.apkg --anki --cleanup
+python scripts/import_md_to_anki.py ./词汇/ --deck 词汇故事 --tags 词汇 -o all_vocab.apkg --anki --cleanup
 ```
 
 ## Troubleshooting
@@ -130,6 +134,7 @@ python import_md_to_anki.py ./词汇/ --deck 词汇故事 --tags 词汇 -o all_v
 | `module 'genanki' has no attribute 'Field'` | genanki >= 0.13 已移除 `Field()`/`Template()`，升级即可 |
 | 导入 Anki 后卡片空白 | 确认 Markdown 文件编码为 UTF-8 |
 | 章节数少于预期 | 检查 `#` 前是否有 `|` 或其他前缀字符 |
+| 同一个词的所有卡片没有同一标签 | 确认文件名正确（如 `contemplate.md` → 自动添加 `#contemplate`），已导入的卡片需删除后重新导入 |
 | 想重新导入 | 设置 → 管理笔记模板 → 牌组 → 删除，再重新导入 |
 | Windows 下输出乱码 | `chcp 65001` 切换终端编码 |
 

@@ -1,0 +1,51 @@
+{
+  "skill_name": "story2anki",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "我刚用 comprehensible-storyteller 生成了 contemplate.md 的故事，帮我把它导出到 Anki 牌组「词汇故事」里，标签加上 英语",
+      "expected_output": "生成 contemplate.apkg 文件，包含 2 张 Cloze 填空卡，卡片带有 #contemplate #词汇 #故事 #英语 标签",
+      "files": ["evals/files/contemplate.md"],
+      "expectations": [
+        "输出文件为 .apkg 格式",
+        "卡片笔记类型为 Cloze（填空卡）",
+        "所有卡片包含 #contemplate 标签",
+        "卡片保留原始 {{c1::...}} 填空标记"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "把我词汇目录下的 ponder.md 和 contemplate.md 合并成一个 all_vocab.apkg，牌组叫「词汇故事」",
+      "expected_output": "生成 all_vocab.apkg，包含两个文件的所有章节，每张卡片带各自的文件名标签",
+      "files": ["evals/files/ponder.md", "evals/files/contemplate.md"],
+      "expectations": [
+        "卡片使用 Cloze 模型",
+        "来自 contemplate.md 的卡片有 #contemplate 标签",
+        "来自 ponder.md 的卡片有 #ponder 标签",
+        "YAML tags 中的 #词汇 标签正确传递"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "帮我把这个没有填空标记的 no_cloze.md 也导出成 Anki 卡片，牌组名用「默认」",
+      "expected_output": "生成 no_cloze.apkg，包含 2 张 Cloze 卡片（无填空标记时文本原样展示）",
+      "files": ["evals/files/no_cloze.md"],
+      "expectations": [
+        "没有 {{c1::...}} 标记的章节仍生成 Cloze 类型卡片",
+        "卡片带有 #no_cloze 标签",
+        "卡片不带 #测试 标签（来自 YAML frontmatter）"
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "把 contemplate.md 导出并自动导入 Anki（已安装 AnkiConnect），导入后清理 .apkg 文件",
+      "expected_output": "通过 AnkiConnect 导入到 Anki，导入成功后删除临时 .apkg 文件",
+      "files": ["evals/files/contemplate.md"],
+      "expectations": [
+        "调用 AnkiConnect 进行自动导入",
+        "导入成功后删除临时 .apkg 文件",
+        "导入失败时保留 .apkg 文件并提示手动导入"
+      ]
+    }
+  ]
+}

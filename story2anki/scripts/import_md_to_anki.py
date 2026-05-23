@@ -22,7 +22,6 @@ import urllib.request
 from pathlib import Path
 
 _CLOZE_HASH = int(hashlib.md5("story2anki-Cloze".encode()).hexdigest()[:8], 16)
-_BASIC_HASH = int(hashlib.md5("story2anki-Basic".encode()).hexdigest()[:8], 16)
 
 ANKI_CONNECT_URL = "http://127.0.0.1:8765"
 
@@ -57,7 +56,8 @@ def parse_markdown(filepath):
     """解析 .md 文件，返回笔记列表。
 
     章节以 `# 标题` 分割。标题前不能有任意前缀字符（如 `|#` 将无法识别）。
-    支持 YAML frontmatter tags。
+    支持 YAML frontmatter tags。自动将文件名（不含扩展名）作为标签添加到每张卡片。
+    全部生成 Cloze（填空卡），保留 `{{c1::...}}` 填空标记。
     """
     content = Path(filepath).read_text(encoding="utf-8")
     tags = []
@@ -98,7 +98,6 @@ def parse_markdown(filepath):
 
     sections = re.split(r'\n(?=# )', body)
     notes = []
-    base_name = Path(filepath).stem
 
     for section in sections:
         section = section.strip()
@@ -107,16 +106,14 @@ def parse_markdown(filepath):
         title_match = re.match(r'# (.+)', section)
         if not title_match:
             continue
-        title = title_match.group(1).strip()
         body_text = section[title_match.end():].strip()
 
-        has_cloze = bool(re.search(r'\{\{c\d+::', body_text))
-        if has_cloze:
-            notes.append({"type": "cloze", "text": body_text, "tags": list(tags)})
-        else:
-            notes.append({"type": "basic",
-                          "front": f"{base_name}-{title}",
-                          "back": body_text, "tags": list(tags)})
+        # 始终使用 Cloze 格式，保留 {{c1::...}} 填空标记
+        # 自动添加文件名作为标签（如 contemplate.md → #contemplate）
+        file_tag = Path(filepath).stem
+        notes.append({"type": "cloze",
+                      "text": body_text,
+                      "tags": list(tags) + [file_tag]})
     return notes
 
 
@@ -124,14 +121,7 @@ def generate_apkg(notes, deck_name, extra_tags, output_path):
     """将笔记列表写入 .apkg 文件。"""
     import genanki
 
-    basic_model = genanki.Model(
-        _BASIC_HASH, "story2anki-Basic",
-        fields=[{"name": "Front"}, {"name": "Back"}],
-        templates=[{"name": "Card 1", "qfmt": "{{Front}}",
-                     "afmt": '{{Front}}<hr id="answer">{{Back}}'}],
-        css=".card { font-family: Arial; font-size: 16px; text-align: left; }")
-
-    cloze_model = genanki.Model(
+    model = genanki.Model(
         _CLOZE_HASH, "story2anki-Cloze",
         fields=[{"name": "Text"}, {"name": "Extra"}],
         templates=[{"name": "Cloze 1", "qfmt": "{{cloze:Text}}",
@@ -144,18 +134,11 @@ def generate_apkg(notes, deck_name, extra_tags, output_path):
 
     for note in notes:
         all_tags = list(set(note["tags"] + extra_tags))
-        if note["type"] == "cloze":
-            gnote = genanki.Note(model=cloze_model,
-                                 fields=[note["text"], ""],
-                                 tags=all_tags)
-            label = note["text"][:60]
-        else:
-            gnote = genanki.Note(model=basic_model,
-                                 fields=[note["front"], note["back"]],
-                                 tags=all_tags)
-            label = note["front"]
+        gnote = genanki.Note(model=model,
+                             fields=[note["text"], ""],
+                             tags=all_tags)
         deck.add_note(gnote)
-        print(f"  Added: {label}")
+        print(f"  Added: {note['text'][:60]}")
 
     genanki.Package(deck).write_to_file(output_path)
     return len(notes)
