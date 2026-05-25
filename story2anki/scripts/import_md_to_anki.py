@@ -18,7 +18,9 @@ import hashlib
 import json
 import re
 import sys
+import tempfile
 import urllib.request
+import shutil
 from pathlib import Path
 
 _CLOZE_HASH = int(hashlib.md5("story2anki-Cloze".encode()).hexdigest()[:8], 16)
@@ -50,6 +52,69 @@ def anki_connect(action, **params):
         return json.loads(resp.read())["result"]
     except Exception:
         return None
+
+
+def extract_first_cloze_word(text):
+    """提取文本中第一个 {{c1::word}} 里的单词。"""
+    m = re.search(r'\{\{c1::(.+?)\}\}', text)
+    return m.group(1).strip() if m else None
+
+
+def sanitize_filename(name):
+    """清理字符串使其适合作为文件名。"""
+    name = name.lower().replace(' ', '_')
+    return re.sub(r'[^a-z0-9_一-鿿]', '', name)
+
+
+def generate_word_audio(words, output_dir):
+    """用 pyttsx3 生成单词的 WAV 音频文件。
+
+    Args:
+        words: 单词列表（可含重复，自动去重）
+        output_dir: 输出目录
+
+    Returns:
+        dict: {原始单词: Path(音频文件)}
+    """
+    try:
+        import pyttsx3
+    except ImportError:
+        print("  Warning: pyttsx3 未安装，跳过音频生成")
+        print("  请运行: pip install pyttsx3")
+        return {}
+
+    unique_words = sorted(set(w for w in words if w))
+    if not unique_words:
+        return {}
+
+    output_dir = Path(output_dir)
+    output_dir.mkdir(parents=True, exist_ok=True)
+
+    engine = pyttsx3.init()
+    voices = engine.getProperty('voices')
+    for voice in voices:
+        if 'en_US' in voice.id:
+            engine.setProperty('voice', voice.id)
+            break
+    rate = engine.getProperty('rate')
+    engine.setProperty('rate', rate - 20)
+
+    audio_files = {}
+    for word in unique_words:
+        fname = sanitize_filename(word) + ".wav"
+        wav_path = output_dir / fname
+        if wav_path.exists():
+            audio_files[word] = wav_path
+            continue
+        engine.save_to_file(word, str(wav_path))
+        engine.runAndWait()
+        if wav_path.exists():
+            audio_files[word] = wav_path
+            print(f"  Audio: {word}")
+        else:
+            print(f"  Warning: 无法生成音频: {word}")
+
+    return audio_files
 
 
 def parse_markdown(filepath):
@@ -110,15 +175,21 @@ def parse_markdown(filepath):
 
         # 始终使用 Cloze 格式，保留 {{c1::...}} 填空标记
         # 自动添加文件名作为标签（如 contemplate.md → #contemplate）
+        audio_word = extract_first_cloze_word(body_text)
         file_tag = Path(filepath).stem
         notes.append({"type": "cloze",
                       "text": body_text,
-                      "tags": list(tags) + [file_tag]})
+                      "tags": list(tags) + [file_tag],
+                      "audio_word": audio_word})
     return notes
 
 
-def generate_apkg(notes, deck_name, extra_tags, output_path):
-    """将笔记列表写入 .apkg 文件。"""
+def generate_apkg(notes, deck_name, extra_tags, output_path, audio_map=None):
+    """将笔记列表写入 .apkg 文件。
+
+    Args:
+        audio_map: {单词: Path(音频文件)}，用于在卡片背面嵌入 [sound:...]
+    """
     import genanki
 
     model = genanki.Model(
@@ -132,15 +203,28 @@ def generate_apkg(notes, deck_name, extra_tags, output_path):
     deck_id = int(hashlib.md5(deck_name.encode()).hexdigest()[:8], 16)
     deck = genanki.Deck(deck_id, deck_name)
 
+    media_files = []
+    if audio_map:
+        media_files = [str(p) for p in audio_map.values()]
+
     for note in notes:
         all_tags = list(set(note["tags"] + extra_tags))
+        extra = ""
+        if audio_map and note.get("audio_word"):
+            word = note["audio_word"]
+            if word in audio_map:
+                fname = sanitize_filename(word) + ".wav"
+                extra = f"[sound:{fname}]"
         gnote = genanki.Note(model=model,
-                             fields=[note["text"], ""],
+                             fields=[note["text"], extra],
                              tags=all_tags)
         deck.add_note(gnote)
         print(f"  Added: {note['text'][:60]}")
 
-    genanki.Package(deck).write_to_file(output_path)
+    package = genanki.Package(deck)
+    if media_files:
+        package.media_files = media_files
+    package.write_to_file(output_path)
     return len(notes)
 
 
@@ -255,7 +339,22 @@ def main():
         sys.exit(1)
 
     print(f"\n总计 {len(all_notes)} 张卡片 → {output_path}")
-    generate_apkg(all_notes, deck_name, extra_tags, output_path)
+
+    # 生成单词音频
+    audio_map = {}
+    words = [n.get("audio_word") for n in all_notes]
+    if any(words):
+        audio_dir = tempfile.mkdtemp(prefix="story2anki_audio_")
+        try:
+            audio_map = generate_word_audio(words, audio_dir)
+        except Exception as e:
+            print(f"  Warning: 音频生成失败 - {e}")
+
+    generate_apkg(all_notes, deck_name, extra_tags, output_path, audio_map)
+
+    # 清理临时音频目录
+    if audio_map:
+        shutil.rmtree(audio_dir, ignore_errors=True)
     print(f"✓ 已生成: {output_path}")
 
     if do_auto_import:

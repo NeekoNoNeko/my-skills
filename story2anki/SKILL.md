@@ -1,12 +1,8 @@
 ---
 name: story2anki
 description: >-
-  将 Markdown 文件导出为 .apkg（Anki 牌组包）文件。使用 Cloze（填空卡）格式，
-  保留 {{c1::...}} 填空标记用于可理解输入词汇学习。自动以文件名（不含扩展名）
-  作为标签，给同一个词的所有卡片打同一标签（如 contemplate.md → #contemplate），
-  方便集中复习或导出。支持单文件、目录批量合并，以及 AnkiConnect 自动导入，导入
-  成功后可选自动清理 .apkg 文件。当用户要求导出 Markdown 到 Anki、生成闪卡、或
-  从结构化文本创建 Anki 卡片时**必须**触发。comprehensible-storyteller 生成故事后
+  当用户要求将 Markdown 文件导出到 Anki、生成闪卡、从结构化文本创建 Anki 卡片、
+  或制作 .apkg 牌组包时**必须**触发。comprehensible-storyteller 生成故事后
   **总是需要**调用此技能导出到 Anki 进行间隔重复复习。是 CLI 生成的学习内容与
   Anki 之间的专用桥梁，不涉及其他工具时也应触发。
 ---
@@ -14,6 +10,13 @@ description: >-
 # Markdown 转 Anki 导入器
 
 将 Markdown 文件按 `#` 标题拆分为 Anki 卡片，生成 `.apkg` 文件。支持单文件、目录批量合并、AnkiConnect 自动导入。
+
+## When to Use
+
+- 用户要求"导出到 Anki"、"生成闪卡"、"制作 .apkg"、"导入 Anki"
+- comprehensible-storyteller 生成故事后需要导出为间隔重复卡片
+- 拥有含 `{{c1::...}}` 填空标记的 Markdown 文件需要转为 Anki 牌组
+- 需要将单文件或整个目录的 Markdown 批量合并为一个 .apkg
 
 ## 工作流程
 
@@ -65,6 +68,7 @@ description: >-
 - **Text 字段**: 包含 `{{c1::目标词}}` 标记的故事全文
   - **正面**: 自动将目标词显示为空白 `___`，需从上下文推断
   - **背面**: 显示完整故事，目标词高亮突出
+- **Extra 字段**: 自动添加第一个 `{{c1::word}}` 的美式发音音频（`[sound:word.wav]`），点击即可发音
 - **设计理念**: Anki 不是"词义记忆器"，而是"提醒你按时读下一篇故事"的定时器
 
 ### Tags（标签）
@@ -91,6 +95,9 @@ description: >-
 - **genanki** >= 0.13: `pip install genanki`
   - 0.13+ 使用 dict 风格 API（`{"name": "FieldName"}`），旧版 `Field()`/`Template()` 已移除
   - 如需检查版本: `pip show genanki`
+- **pyttsx3**（可选，用于单词发音）: `pip install pyttsx3`
+  - 未安装时自动跳过音频生成，不影响卡片生成
+  - 仅在 Windows 上生效（使用 SAPI5）
 - **AnkiConnect**（可选，自动导入需要）: Anki 插件代码 2055492159
 
 ## 边界情况处理
@@ -102,13 +109,16 @@ description: >-
 | 目录模式下无 `.md` 文件 | 报错退出 |
 | 输出路径已存在同名 `.apkg` | 直接覆盖 |
 | Markdown 中含 `{{c1::...}}` 填空标记 | 保留，正常渲染为 Cloze 填空卡 |
-| 无填空标记的章节 | 仍生成 Cloze 卡，文本原样展示 |
+| 无填空标记的章节 | 仍生成 Cloze 卡，文本原样展示，无音频 |
 | 文件名含特殊字符 | 按原样作为标签 |
 | AnkiConnect 未运行 | 提示手动导入，不中断流程 |
 | AnkiConnect 导入时牌组不存在 | 自动创建牌组 |
 | genanki 版本过旧（< 0.13） | 报错提示升级 |
 | 多个文件合并时标签冲突 | 取并集去重 |
 | 导入失败（`--cleanup` 已启用） | 保留 `.apkg` 不删除，提示用户手动处理 |
+| pyttsx3 未安装 | 跳过音频生成，不影响卡片正常生成 |
+| 音频生成失败（单个单词） | 输出警告，跳过该单词音频 |
+| 卡片有多个 `{{c1::}}` 标记 | 只取第一个词生成美式发音音频 |
 
 ## 快速参考
 
@@ -137,4 +147,6 @@ python scripts/import_md_to_anki.py ./词汇/ --deck 词汇故事 --tags 词汇 
 | 同一个词的所有卡片没有同一标签 | 确认文件名正确（如 `contemplate.md` → 自动添加 `#contemplate`），已导入的卡片需删除后重新导入 |
 | 想重新导入 | 设置 → 管理笔记模板 → 牌组 → 删除，再重新导入 |
 | Windows 下输出乱码 | `chcp 65001` 切换终端编码 |
+| 卡片背面没有发音按钮 | 运行 `pip install pyttsx3` 安装 TTS 引擎 |
+| 发音是英式而非美式 | 检查系统 TTS 语音列表中是否包含 `en_US` 选项 |
 
