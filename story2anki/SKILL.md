@@ -95,9 +95,11 @@ description: >-
 - **genanki** >= 0.13: `pip install genanki`
   - 0.13+ 使用 dict 风格 API（`{"name": "FieldName"}`），旧版 `Field()`/`Template()` 已移除
   - 如需检查版本: `pip show genanki`
-- **pyttsx3**（可选，用于单词发音）: `pip install pyttsx3`
+- **edge-tts**（可选，用于单词发音）: `pip install edge-tts`
+  - 安装后自动并行生成美式发音 WAV 音频（10 路并发），50 个词约 10-20 秒完成
   - 未安装时自动跳过音频生成，不影响卡片生成
-  - 仅在 Windows 上生效（使用 SAPI5）
+  - 使用微软 Edge 在线 TTS（`en-US-JennyNeural`），音质自然，跨平台
+  - 相比旧版 pyttsx3（离线 SAPI5，串行生成，仅 Windows），速度快 5-10 倍
 - **AnkiConnect**（可选，自动导入需要）: Anki 插件代码 2055492159
 
 ## 边界情况处理
@@ -116,7 +118,7 @@ description: >-
 | genanki 版本过旧（< 0.13） | 报错提示升级 |
 | 多个文件合并时标签冲突 | 取并集去重 |
 | 导入失败（`--cleanup` 已启用） | 保留 `.apkg` 不删除，提示用户手动处理 |
-| pyttsx3 未安装 | 跳过音频生成，不影响卡片正常生成 |
+| edge-tts 未安装 | 跳过音频生成，不影响卡片正常生成 |
 | 音频生成失败（单个单词） | 输出警告，跳过该单词音频 |
 | 卡片有多个 `{{c1::}}` 标记 | 只取第一个词生成美式发音音频 |
 
@@ -146,7 +148,8 @@ python scripts/import_md_to_anki.py ./词汇/ --deck 词汇故事 --tags 词汇 
 | 章节数少于预期 | 检查 `#` 前是否有 `|` 或其他前缀字符 |
 | 同一个词的所有卡片没有同一标签 | 确认文件名正确（如 `contemplate.md` → 自动添加 `#contemplate`），已导入的卡片需删除后重新导入 |
 | 想重新导入 | 设置 → 管理笔记模板 → 牌组 → 删除，再重新导入 |
+| 卡片背面没有发音按钮 | 运行 `pip install edge-tts` 安装 TTS 引擎 |
+| 发音是英式而非美式 | edge-tts 默认使用 `en-US-JennyNeural`（美式），无需额外配置 |
+| 音频生成被防火墙/代理阻止 | edge-tts 需要访问微软 Edge TTS 服务，检查网络连接 |
 | Windows 下输出乱码 | `chcp 65001` 切换终端编码 |
-| 卡片背面没有发音按钮 | 运行 `pip install pyttsx3` 安装 TTS 引擎 |
-| 发音是英式而非美式 | 检查系统 TTS 语音列表中是否包含 `en_US` 选项 |
 

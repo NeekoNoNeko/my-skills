@@ -67,7 +67,7 @@ def sanitize_filename(name):
 
 
 def generate_word_audio(words, output_dir):
-    """用 pyttsx3 生成单词的 WAV 音频文件。
+    """用 edge-tts 并行生成单词的 WAV 音频文件。
 
     Args:
         words: 单词列表（可含重复，自动去重）
@@ -76,12 +76,8 @@ def generate_word_audio(words, output_dir):
     Returns:
         dict: {原始单词: Path(音频文件)}
     """
-    try:
-        import pyttsx3
-    except ImportError:
-        print("  Warning: pyttsx3 未安装，跳过音频生成")
-        print("  请运行: pip install pyttsx3")
-        return {}
+    import asyncio
+    import edge_tts
 
     unique_words = sorted(set(w for w in words if w))
     if not unique_words:
@@ -90,31 +86,28 @@ def generate_word_audio(words, output_dir):
     output_dir = Path(output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
 
-    engine = pyttsx3.init()
-    voices = engine.getProperty('voices')
-    for voice in voices:
-        if 'en_US' in voice.id:
-            engine.setProperty('voice', voice.id)
-            break
-    rate = engine.getProperty('rate')
-    engine.setProperty('rate', rate - 20)
+    async def _generate_one(word, sem):
+        async with sem:
+            fname = sanitize_filename(word) + ".wav"
+            wav_path = output_dir / fname
+            if wav_path.exists():
+                return word, wav_path
+            communicate = edge_tts.Communicate(word, voice="en-US-JennyNeural")
+            await communicate.save(str(wav_path))
+            if wav_path.exists():
+                print(f"  Audio: {word}")
+                return word, wav_path
+            else:
+                print(f"  Warning: 无法生成音频: {word}")
+                return word, None
 
-    audio_files = {}
-    for word in unique_words:
-        fname = sanitize_filename(word) + ".wav"
-        wav_path = output_dir / fname
-        if wav_path.exists():
-            audio_files[word] = wav_path
-            continue
-        engine.save_to_file(word, str(wav_path))
-        engine.runAndWait()
-        if wav_path.exists():
-            audio_files[word] = wav_path
-            print(f"  Audio: {word}")
-        else:
-            print(f"  Warning: 无法生成音频: {word}")
+    async def _run():
+        sem = asyncio.Semaphore(10)  # 最多 10 个并发
+        tasks = [_generate_one(w, sem) for w in unique_words]
+        results = await asyncio.gather(*tasks)
+        return {word: path for word, path in results if path}
 
-    return audio_files
+    return asyncio.run(_run())
 
 
 def parse_markdown(filepath):
@@ -246,10 +239,10 @@ def auto_import(output_path, deck_name):
     if result:
         # 重新查询卡片数
         cards = anki_connect("findCards", query=f'deck:"{deck_name}"')
-        print(f"  ✓ 成功导入 {len(cards) if cards else '?'} 张卡片到牌组「{deck_name}」")
+        print(f"  [OK] 成功导入 {len(cards) if cards else '?'} 张卡片到牌组 [{deck_name}]")
         return True
     else:
-        print("  ✗ AnkiConnect 导入失败，请手动导入")
+        print("  [FAIL] AnkiConnect 导入失败，请手动导入")
         return False
 
 
@@ -355,7 +348,7 @@ def main():
     # 清理临时音频目录
     if audio_map:
         shutil.rmtree(audio_dir, ignore_errors=True)
-    print(f"✓ 已生成: {output_path}")
+    print(f"[OK] 已生成: {output_path}")
 
     if do_auto_import:
         success = auto_import(output_path, deck_name)
