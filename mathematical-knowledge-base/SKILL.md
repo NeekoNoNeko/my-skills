@@ -96,89 +96,89 @@ on:
 
 ### 概率论
 
-基目录：`references/概率论/Introduction-to-Probability/`
+基目录：`references/probability/Introduction-to-Probability/`
 
 ### 前置资料
 
 | 目录 | 文件路径 | 内容 |
 |------|----------|------|
-| 前言 | `前言-目录-致谢/前言-目录-致谢.md` | 教材目标与定位、致谢 |
+| 前言 | `preface-toc-acknowledgments/preface-toc-acknowledgments.md` | 教材目标与定位、致谢 |
 
 ### 正文章节（第 1–13 章）
 
 | 目录 | 内容 | 前置依赖 |
 |------|------|----------|
-| `第1章-Probability-and-counting/` | 1.1–1.7 样本空间、概率的朴素/非朴素定义、计数方法、故事证明 | 无 |
-| `第2章-Conditional-probability/` | 2.1–2.10 条件概率定义、贝叶斯法则与全概率公式、独立性、条件化解题、陷阱与悖论、R 实践 | 第1章 |
-| `第3章-Random-variables-and-their-distributions/` | 3.1–3.8 随机变量、PMF/CDF、伯努利/二项/超几何/泊松/离散均匀分布 | 第1–2章 |
-| `第4章-Expectation/` | 4.1–4.7 期望定义与性质、方差、条件期望、重期望律（Adam/Eve 定律）、MGF、PGF | 第1–3章 |
-| `第5章-Continuous-random-variables/` | 5.1–5.7 连续随机变量与 PDF、均匀/正态/指数/伽马/贝塔分布、混合分布 | 第1–4章 |
-| `第6章-Moments/` | 6.1–6.4 矩与 MGF、多元 MGF、偏度与峰度 | 第4–5章 |
-| `第7章-Joint-distributions/` | 7.1–7.5 联合分布（离散/连续/混合）、边缘分布、多元正态、联合 MGF、多元变换 | 第1–6章 |
-| `第8章-Transformations/` | 8.1–8.3 单变量变换、两变量变换、卷积与次序统计量 | 第4–5章 |
-| `第9章-Conditional-expectation/` | 9.1–9.5 条件期望深入、投影与内积视角、马尔可夫链与停时理论中的条件化 | 第4章、第7章 |
-| `第10章-Inequalities-and-limit-theorems/` | 10.1–10.4 Markov/Chebyshev/Chernoff/Jensen 不等式、大数定律 LLN、中心极限定理 CLT、Delta 方法 | 第4–6章 |
-| `第11章-Markov-chains/` | 11.1–11.5 马尔可夫链基础、状态分类、平稳分布、细致平衡、MCMC 简介 | 第1–10章 |
-| `第12章-Markov-chain-Monte-Carlo/` | 12.1–12.4 Metropolis-Hastings、Gibbs 采样、统计物理中的 MCMC | 第11章 |
-| `第13章-Poisson-processes/` | 13.1–13.6 泊松过程、叠加与分解、条件化到达时间、二维泊松、更新过程 | 第1–10章 |
-| `附录A-Math/` | 附录 A：求和、集合论、极限与导数、级数与积分、矩阵、分布总结 | 各章通用基础 |
+| `ch01-Probability-and-counting/` | 1.1–1.7 样本空间、概率的朴素/非朴素定义、计数方法、故事证明 | 无 |
+| `ch02-Conditional-probability/` | 2.1–2.10 条件概率定义、贝叶斯法则与全概率公式、独立性、条件化解题、陷阱与悖论、R 实践 | 第1章 |
+| `ch03-Random-variables-and-their-distributions/` | 3.1–3.8 随机变量、PMF/CDF、伯努利/二项/超几何/泊松/离散均匀分布 | 第1–2章 |
+| `ch04-Expectation/` | 4.1–4.7 期望定义与性质、方差、条件期望、重期望律（Adam/Eve 定律）、MGF、PGF | 第1–3章 |
+| `ch05-Continuous-random-variables/` | 5.1–5.7 连续随机变量与 PDF、均匀/正态/指数/伽马/贝塔分布、混合分布 | 第1–4章 |
+| `ch06-Moments/` | 6.1–6.4 矩与 MGF、多元 MGF、偏度与峰度 | 第4–5章 |
+| `ch07-Joint-distributions/` | 7.1–7.5 联合分布（离散/连续/混合）、边缘分布、多元正态、联合 MGF、多元变换 | 第1–6章 |
+| `ch08-Transformations/` | 8.1–8.3 单变量变换、两变量变换、卷积与次序统计量 | 第4–5章 |
+| `ch09-Conditional-expectation/` | 9.1–9.5 条件期望深入、投影与内积视角、马尔可夫链与停时理论中的条件化 | 第4章、第7章 |
+| `ch10-Inequalities-and-limit-theorems/` | 10.1–10.4 Markov/Chebyshev/Chernoff/Jensen 不等式、大数定律 LLN、中心极限定理 CLT、Delta 方法 | 第4–6章 |
+| `ch11-Markov-chains/` | 11.1–11.5 马尔可夫链基础、状态分类、平稳分布、细致平衡、MCMC 简介 | 第1–10章 |
+| `ch12-Markov-chain-Monte-Carlo/` | 12.1–12.4 Metropolis-Hastings、Gibbs 采样、统计物理中的 MCMC | 第11章 |
+| `ch13-Poisson-processes/` | 13.1–13.6 泊松过程、叠加与分解、条件化到达时间、二维泊松、更新过程 | 第1–10章 |
+| `appendixA-Math/` | 附录 A：求和、集合论、极限与导数、级数与积分、矩阵、分布总结 | 各章通用基础 |
 
 ---
 
 ### 微积分
 
-基目录：`references/微积分/Calculus-Early-Transcendentals-9e/`
+基目录：`references/calculus/Calculus-Early-Transcendentals-9e/`
 
 ### 前置资料
 
 | 目录 | 文件路径 | 内容 |
 |------|----------|------|
-| 前言与代数几何三角复习 | `00-前言-代数几何三角复习/00-前言-代数几何三角复习.md` | 代数、几何、三角学基础复习 |
-| 微积分预览 | `00-微积分预览/00-微积分预览.md` | 什么是微积分、面积问题、切线问题 |
-| 诊断测试 | `00-诊断测试/00-诊断测试.md` | 代数/解析几何/函数/三角学诊断测试 |
+| 前言与代数几何三角复习 | `00-preview-cover-algebra-review/00-preview-cover-algebra-review.md` | 代数、几何、三角学基础复习 |
+| 微积分预览 | `00-calculus-preview/00-calculus-preview.md` | 什么是微积分、面积问题、切线问题 |
+| 诊断测试 | `00-diagnostic-tests/00-diagnostic-tests.md` | 代数/解析几何/函数/三角学诊断测试 |
 
 ### 正文章节（第 1–16 章）
 
 | 目录 | 内容 | 前置依赖 |
 |------|------|----------|
-| `第1章-Functions-and-Models/` | 1.1–1.4 函数表示方式、数学模型、函数变换、指数函数 | 前置资料 |
-| `第2章-Limits-and-Derivatives/` | 2.1–2.8 切线速度问题、极限定义与计算、连续性、导数与变化率 | 第1章 |
-| `第3章-Differentiation-Rules/` | 3.1–3.9 多项式/指数/三角/对数函数求导、积商法则、链式法则、隐函数求导、相关变化率、线性近似 | 第1–2章 |
-| `第4章-Applications-of-Differentiation/` | 4.1–4.8 最值、中值定理、函数图形分析、洛必达法则、优化问题、牛顿法、原函数 | 第1–3章 |
-| `第5章-Integrals/` | 5.1–5.5 面积距离问题、定积分、微积分基本定理、不定积分与净变化定理、换元法 | 第1–4章 |
-| `第6章-Applications-of-Integration/` | 6.1–6.5 曲线间面积、体积（圆盘/壳层法）、功、函数平均值 | 第5章 |
-| `第7章-Techniques-of-Integration/` | 7.1–7.8 分部积分、三角积分、三角代换、部分分式、积分策略、近似积分、反常积分 | 第5–6章 |
-| `第8章-Further-Applications-of-Integration/` | 8.1–8.5 弧长、旋转曲面面积、物理工程应用、经济生物应用、概率 | 第5–7章 |
-| `第9章-Differential-Equations/` | 9.1–9.6 微分方程建模、方向场与欧拉法、可分离方程、人口模型、线性方程、捕食-被捕食系统 | 第1–8章 |
-| `第10章-Parametric-Equations-and-Polar-Coordinates/` | 10.1–10.4 参数方程曲线、参数曲线的微积分、极坐标、极坐标下的微积分 | 第1–7章 |
-| `第11章-Sequences-Series-and-Power-Series/` | 11.1–11.11 数列、级数、积分/比较/比值/根值判别法、幂级数、泰勒/麦克劳林级数 | 第1–7章 |
-| `第12章-Vectors-and-the-Geometry-of-Space/` | 12.1–12.6 三维坐标系、向量、点积、叉积、直线与平面方程、柱面与二次曲面 | 第1–3章 |
-| `第13章-Vector-Functions/` | 13.1–13.4 向量函数与空间曲线、导数与积分、弧长与曲率、空间运动 | 第12章 |
-| `第14章-Partial-Derivatives/` | 14.1–14.8 多元函数、极限与连续、偏导数、切平面与线性近似、链式法则、方向导数与梯度、极值、拉格朗日乘数法 | 第1–13章 |
-| `第15章-Multiple-Integrals/` | 15.1–15.9 二重积分（矩形/一般区域/极坐标）、应用、表面积、三重积分（直角/柱/球坐标）、变量代换 | 第1–14章 |
-| `第16章-Vector-Calculus/` | 16.1–16.9 向量场、线积分、格林定理、旋度与散度、参数曲面与面积、曲面积分、斯托克斯定理、散度定理 | 第1–15章 |
-| `附录/` | 附录 A–F：数/不等式/绝对值、坐标几何、三角学、西格玛记号、数学归纳法、定理证明 | 各章通用基础 |
-| `索引/` | 全书索引 | 查找定位 |
-| `特殊函数/` | 反三角函数、双曲函数、积分表等 | 各章通用参考 |
+| `ch01-Functions-and-Models/` | 1.1–1.4 函数表示方式、数学模型、函数变换、指数函数 | 前置资料 |
+| `ch02-Limits-and-Derivatives/` | 2.1–2.8 切线速度问题、极限定义与计算、连续性、导数与变化率 | 第1章 |
+| `ch03-Differentiation-Rules/` | 3.1–3.9 多项式/指数/三角/对数函数求导、积商法则、链式法则、隐函数求导、相关变化率、线性近似 | 第1–2章 |
+| `ch04-Applications-of-Differentiation/` | 4.1–4.8 最值、中值定理、函数图形分析、洛必达法则、优化问题、牛顿法、原函数 | 第1–3章 |
+| `ch05-Integrals/` | 5.1–5.5 面积距离问题、定积分、微积分基本定理、不定积分与净变化定理、换元法 | 第1–4章 |
+| `ch06-Applications-of-Integration/` | 6.1–6.5 曲线间面积、体积（圆盘/壳层法）、功、函数平均值 | 第5章 |
+| `ch07-Techniques-of-Integration/` | 7.1–7.8 分部积分、三角积分、三角代换、部分分式、积分策略、近似积分、反常积分 | 第5–6章 |
+| `ch08-Further-Applications-of-Integration/` | 8.1–8.5 弧长、旋转曲面面积、物理工程应用、经济生物应用、概率 | 第5–7章 |
+| `ch09-Differential-Equations/` | 9.1–9.6 微分方程建模、方向场与欧拉法、可分离方程、人口模型、线性方程、捕食-被捕食系统 | 第1–8章 |
+| `ch10-Parametric-Equations-and-Polar-Coordinates/` | 10.1–10.4 参数方程曲线、参数曲线的微积分、极坐标、极坐标下的微积分 | 第1–7章 |
+| `ch11-Sequences-Series-and-Power-Series/` | 11.1–11.11 数列、级数、积分/比较/比值/根值判别法、幂级数、泰勒/麦克劳林级数 | 第1–7章 |
+| `ch12-Vectors-and-the-Geometry-of-Space/` | 12.1–12.6 三维坐标系、向量、点积、叉积、直线与平面方程、柱面与二次曲面 | 第1–3章 |
+| `ch13-Vector-Functions/` | 13.1–13.4 向量函数与空间曲线、导数与积分、弧长与曲率、空间运动 | 第12章 |
+| `ch14-Partial-Derivatives/` | 14.1–14.8 多元函数、极限与连续、偏导数、切平面与线性近似、链式法则、方向导数与梯度、极值、拉格朗日乘数法 | 第1–13章 |
+| `ch15-Multiple-Integrals/` | 15.1–15.9 二重积分（矩形/一般区域/极坐标）、应用、表面积、三重积分（直角/柱/球坐标）、变量代换 | 第1–14章 |
+| `ch16-Vector-Calculus/` | 16.1–16.9 向量场、线积分、格林定理、旋度与散度、参数曲面与面积、曲面积分、斯托克斯定理、散度定理 | 第1–15章 |
+| `appendices/` | 附录 A–F：数/不等式/绝对值、坐标几何、三角学、西格玛记号、数学归纳法、定理证明 | 各章通用基础 |
+| `index/` | 全书索引 | 查找定位 |
+| `special-functions/` | 反三角函数、双曲函数、积分表等 | 各章通用参考 |
 
 ### 辅助文件
 
 | 文件路径 | 内容 | 用途 |
 |----------|------|------|
-| `Introduction-to-Probability-知识点大纲.md` | 概率论全书知识点大纲 | **概率论问题首次定位时优先读取** |
-| `微积分-Calculus-Early-Transcendentals-9e-知识点大纲.md` | 微积分全书知识点大纲 | **微积分问题首次定位时优先读取** |
+| `Introduction-to-Probability-outline.md` | 概率论全书知识点大纲 | **概率论问题首次定位时优先读取** |
+| `Calculus-Early-Transcendentals-9e-outline.md` | 微积分全书知识点大纲 | **微积分问题首次定位时优先读取** |
 
 ---
 
 ## 使用方法
 
 1. **优先读大纲** → 定位章节：
-   - 概率论：`references/概率论/Introduction-to-Probability/Introduction-to-Probability-知识点大纲.md`
-   - 微积分：`references/微积分/Calculus-Early-Transcendentals-9e/微积分-Calculus-Early-Transcendentals-9e-知识点大纲.md`
+   - 概率论：`references/probability/Introduction-to-Probability/Introduction-to-Probability-outline.md`
+   - 微积分：`references/calculus/Calculus-Early-Transcendentals-9e/Calculus-Early-Transcendentals-9e-outline.md`
 2. **读章节文件** → 获取详细内容：
    - 每个章节目录中存在一个 `.md` 文件，文件名与目录名相同
-   - 如概率论 `第3章-Random-variables-and-their-distributions/第3章-Random-variables-and-their-distributions.md`
-   - 如微积分 `第3章-Differentiation-Rules/第3章-Differentiation-Rules.md`
+   - 如概率论 `ch03-Random-variables-and-their-distributions/ch03-Random-variables-and-their-distributions.md`
+   - 如微积分 `ch03-Differentiation-Rules/ch03-Differentiation-Rules.md`
 3. **查看插图**：同目录下的 `images/` 文件夹包含该章所有插图，文档内以 `![](images/hash.jpg)` 引用
 
 ### 回答模板
