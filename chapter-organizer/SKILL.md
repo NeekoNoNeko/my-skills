@@ -28,7 +28,7 @@ on:
 
 批量处理一套教材的 Markdown 章节文件，完成以下操作：
 
-1. **重命名** —— 按【章节】【主要内容】格式为每个文件赋予有意义的中文名
+1. **重命名** —— 按【Chapter-X-Description】格式为每个文件赋予有意义的英文名
 2. **保留图片** —— `images/` 文件夹与 `.md` 文件保持在同一层级，确保 `![](images/xxx.jpg)` 相对路径正常
 3. **生成大纲** —— 提取所有文件的章节标题，汇总为完整的知识点大纲
 
@@ -50,17 +50,17 @@ on:
 
 ```
 源目录/                    输出目录/
-├── raw_dir_1/      ──→    ├── 第1章-xxx/
-│   ├── full.md            │   ├── 第1章-xxx.md
+├── raw_dir_1/      ──→    ├── Chapter-1-xxx/
+│   ├── full.md            │   ├── Chapter-1-xxx.md
 │   └── images/            │   └── images/
-├── raw_dir_2/      ──→    ├── 第2章-yyy/
-│   ├── full.md            │   ├── 第2章-yyy.md
+├── raw_dir_2/      ──→    ├── Chapter-2-yyy/
+│   ├── full.md            │   ├── Chapter-2-yyy.md
 │   └── images/            │   └── images/
 └── ...                    ├── ...
-                           └── 教材名-知识点大纲.md
+                           └── Book-Name-outline.md
 ```
 
-输出目录建在 **源目录内部**（如 `源目录/教材名/`），使项目自包含。输出目录名只用教材名概述内容，不带"整理"字样（如 `Introduction-to-Probability` 而非 `Introduction-to-Probability-章节整理`）。
+输出目录建在 **源目录内部**（如 `源目录/Book-Name/`），使项目自包含。输出目录名只用教材名概述内容，不带"整理"字样（如 `Introduction-to-Probability` 而非 `Introduction-to-Probability-章节整理`）。
 
 ---
 
@@ -78,14 +78,14 @@ done
 ### 2. 创建输出目录并复制重命名
 
 ```bash
-mkdir -p "../教材名"
-cp "1.md" "../教材名/第1章-主要内容.md"
-cp "Preface.md" "../教材名/前言.md"
+mkdir -p "../Book-Name"
+cp "1.md" "../Book-Name/Chapter-1-Main-Content.md"
+cp "Preface.md" "../Book-Name/Preface.md"
 ```
 
 命名格式：
-- **带编号**：`第X章-主要内容.md`
-- **无编号**：`前言.md`、`附录.md`、`索引.md`
+- **带编号**：`Chapter-X-Main-Content.md`
+- **无编号**：`Preface.md`、`Appendix.md`、`Index.md`
 
 ### 3. 提取标题 → 跳到"生成知识点大纲"
 
@@ -121,8 +121,8 @@ done
 
 | 源目录 | 目标章节名 |
 |--------|-----------|
-| `PDF-HASH-A/` | `第1章-Probability-and-counting` |
-| `PDF-HASH-B/` | `第2章-Conditional-probability` |
+| `PDF-HASH-A/` | `Chapter-1-Probability-and-counting` |
+| `PDF-HASH-B/` | `Chapter-2-Conditional-probability` |
 
 ### 3. 执行复制
 
@@ -131,19 +131,19 @@ done
 ```powershell
 # 先定义章节映射，再调用脚本
 $chapters = @{
-    "源目录名1" = "第1章-章节名"
-    "源目录名2" = "第2章-章节名"
+    "源目录名1" = "Chapter-1-Name"
+    "源目录名2" = "Chapter-2-Name"
 }
-.\scripts\organize-mineru.ps1 -SourceDir "源目录路径" -OutputDir "源目录路径/教材名" -ChapterMapping $chapters
+.\scripts\organize-mineru.ps1 -SourceDir "源目录路径" -OutputDir "源目录路径/Book-Name" -ChapterMapping $chapters
 ```
 
 或手工执行：
 
 ```bash
 base="源目录路径"
-out="$base/教材名"
+out="$base/Book-Name"
 mkdir -p "$out"
-declare -A chapters=(["源目录名1"]="第1章-章节名")
+declare -A chapters=(["源目录名1"]="Chapter-1-Name")
 for src in "${!chapters[@]}"; do
   name="${chapters[$src]}"
   mkdir -p "$out/$name"
@@ -179,11 +179,11 @@ done
 按以下格式组织大纲：
 
 ```markdown
-# 教材名 — 知识点大纲
+# Book Name — Knowledge Outline
 
-## 第1章 主要内容（English Title）
+## Chapter 1: Main Content
 
-### 1.1 小节名（Section Name）
+### 1.1 Section Name
 - 知识点条目
 - 保留英文术语对照，便于查阅原书
 ```
@@ -219,7 +219,7 @@ done
 
 | 原始 | 建议命名 |
 |------|----------|
-| `Preface.md` / 前言相关 | `前言.md` |
-| Chapter 1 / `1.md` | `第1章-主要内容.md` |
-| Appendix A / `A.md` | `附录A-标题.md` |
-| `Index.md` | `索引.md` |
+| `Preface.md` | `Preface.md` |
+| Chapter 1 / `1.md` | `Chapter-1-Main-Content.md` |
+| Appendix A / `A.md` | `Appendix-A-Title.md` |
+| `Index.md` | `Index.md` |

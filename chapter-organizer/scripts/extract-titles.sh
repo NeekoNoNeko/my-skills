@@ -9,7 +9,7 @@ BASE="${1:-.}"
 if ls "$BASE"/*.md &>/dev/null 2>&1 && [ -z "$(find "$BASE" -mindepth 1 -maxdepth 1 -type d 2>/dev/null)" ]; then
     echo "检测到场景 A（平铺 .md 文件）"
     for f in "$BASE"/*.md; do
-        [ "$(basename "$f")" = "知识点大纲.md" ] && continue
+        [ "$(basename "$f")" = "outline.md" ] && continue
         echo "=== $(basename "$f") ==="
         grep -nE '^(# |## |### )' "$f" | grep -vi 'FIGURE\|Solution:\|Proof\.\|Simulating\|Exercises' | head -40
         echo ""

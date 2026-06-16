@@ -10,14 +10,14 @@
     输出目录路径（将在源目录内部创建）。
 .PARAMETER ChapterMapping
     章节映射的 PowerShell hashtable，格式：
-    @{"源目录名"="第X章-章节名"; ...}
+    @{"源目录名"="Chapter-X-Name"; ...}
 .EXAMPLE
     # 定义映射后调用
     $base = "C:\path\to\source"
     $out = "$base\Introduction-to-Probability"
     $chapters = @{
-        "PDF-HASH-1" = "第1章-Probability-and-counting"
-        "PDF-HASH-2" = "第2章-Conditional-probability"
+        "PDF-HASH-1" = "Chapter-1-Probability-and-counting"
+        "PDF-HASH-2" = "Chapter-2-Conditional-probability"
     }
     .\organize-mineru.ps1 -SourceDir $base -OutputDir $out -ChapterMapping $chapters
 #>
