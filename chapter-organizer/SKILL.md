@@ -3,7 +3,7 @@ name: chapter-organizer
 description: >
   整理教材章节 Markdown 文件，支持平铺 .md 文件和 MinerU 嵌套目录
   （每个目录含 full.md + images/）两种场景。按章节重命名文件、提取所有章节标题
-  生成知识点大纲，并完整保留图片引用不中断。适用于用户说"整理一下这本书的md"、
+  生成知识点大纲，并选择性复制被引用的图片到输出目录。适用于用户说"整理一下这本书的md"、
   "按章节重命名这些文件"、"生成知识点大纲"、"提取章节标题"、"处理mineru输出"、
   "把full.md按章节整理"、"整理教材图片"、"批量重命名md文件"、"整理电子书的md"等场景。
   注意：遇到带 images/ 文件夹的 MinerU 输出时更要主动使用此技能，因为图片保留是它区别于普通重命名的关键能力。
@@ -29,7 +29,7 @@ on:
 批量处理一套教材的 Markdown 章节文件，完成以下操作：
 
 1. **重命名** —— 按【Chapter-X-Description】格式为每个文件赋予有意义的英文名
-2. **保留图片** —— `images/` 文件夹与 `.md` 文件保持在同一层级，确保 `![](images/xxx.jpg)` 相对路径正常
+2. **选择性复制图片** —— 解析 `.md` 中的 `![](images/xxx.jpg)` 引用，只复制被引用的图片，避免搬运 MinerU 输出的无关图片
 3. **生成大纲** —— 提取所有文件的章节标题，汇总为完整的知识点大纲
 
 ## 适用场景
@@ -42,7 +42,7 @@ on:
 
 1. **绝不修改源文件和原文件夹名** —— 用 `cp` 而非 `mv`，所有变更在新输出目录中进行。原因：源目录是 MinerU 原始输出，一旦改名或修改就无法追溯到原始 PDF。
 2. **图片必须与 .md 文件保持在同一目录层级** —— `![](images/xxx.jpg)` 是相对路径，Markdown 渲染器从 .md 文件位置解析 `images/`。层级错乱则图片断裂。
-3. **绝不删除图片引用** —— 不允许 `sed` 清理 `![](images/...)`。图片引用断链是硬伤，多余的文件只是多几个字节。
+3. **仅复制 .md 中实际引用的图片** —— 解析 `![](images/xxx.jpg)` 提取文件名，只复制被引用的图片到输出目录。MinerU 输出的 `images/` 往往包含大量 OCR 切图碎片，全部搬运会污染输出目录且浪费空间。
 
 ---
 
@@ -52,10 +52,10 @@ on:
 源目录/                    输出目录/
 ├── raw_dir_1/      ──→    ├── Chapter-1-xxx/
 │   ├── full.md            │   ├── Chapter-1-xxx.md
-│   └── images/            │   └── images/
+│   └── images/ (全部)     │   └── images/ (仅被引用的图片)
 ├── raw_dir_2/      ──→    ├── Chapter-2-yyy/
 │   ├── full.md            │   ├── Chapter-2-yyy.md
-│   └── images/            │   └── images/
+│   └── images/ (全部)     │   └── images/ (仅被引用的图片)
 └── ...                    ├── ...
                            └── Book-Name-outline.md
 ```
@@ -126,7 +126,7 @@ done
 
 ### 3. 执行复制
 
-**推荐优先使用脚本** `scripts/organize-mineru.ps1`，它会自动处理创建目录、复制重命名、图片搬运全流程：
+**推荐优先使用脚本** `scripts/organize-mineru.ps1`，它会自动处理创建目录、复制重命名、引用图片筛选全流程：
 
 ```powershell
 # 先定义章节映射，再调用脚本
@@ -147,14 +147,22 @@ declare -A chapters=(["源目录名1"]="Chapter-1-Name")
 for src in "${!chapters[@]}"; do
   name="${chapters[$src]}"
   mkdir -p "$out/$name"
+  # 复制 .md 并重命名
   cp "$base/$src/full.md" "$out/$name/$name.md"
-  cp -r "$base/$src/images" "$out/$name/"
+  # 只复制 .md 中实际引用的图片
+  mkdir -p "$out/$name/images"
+  grep -oP '\]\(images/\K[^)]+' "$base/$src/full.md" | sort -u | while read -r img; do
+    src_img="$base/$src/images/$img"
+    [ -f "$src_img" ] && cp "$src_img" "$out/$name/images/"
+  done
 done
 ```
 
 为什么要用 `cp` 而非 `mv`：`cp` 保留源目录不变，处理出错时可以重来。`mv` 会使源目录结构丢失。
 
 为什么 `images/` 必须和 `.md` 同层：`full.md` 中的引用是 `![](images/hash.jpg)`。Markdown 渲染器从 `.md` 位置拼接此路径，所以 `images/` 必须是 `.md` 的**直接子目录**。
+
+为什么只复制被引用的图片：MinerU 输出的 `images/` 目录通常包含大量 OCR 过程中产生的碎片图片（公式切图、页码、装饰元素等），大部分并未在 `.md` 中被引用。全部搬运会浪费磁盘空间并让输出目录杂乱。通过 `grep` 提取 `![](images/...)` 中的文件名，只复制有引用的图片即可。
 
 ### 4. 提取标题 → 跳到"生成知识点大纲"
 
@@ -199,18 +207,26 @@ done
 或手工验证：
 
 ```bash
-# 每个章节目录都有 .md 和 images/
+# 检查每个章节目录的 .md 和 images/
 for dir in */; do
-  md_count=$(ls "$dir"*.md 2>/dev/null | wc -l)
-  img_count=$(ls "$dir/images/"*.jpg 2>/dev/null | wc -l)
-  echo "$dir: .md=$md_count, images=$img_count"
+  md_files=("$dir"*.md)
+  [ -f "${md_files[0]}" ] || { echo "❌ $dir: 缺少 .md"; continue; }
+  # 检查被引用的图片是否都存在
+  grep -oP '\]\(images/\K[^)]+' "${md_files[0]}" | while read -r img; do
+    [ -f "$dir/images/$img" ] || echo "❌ $dir: 缺少图片 $img"
+  done
+  # 检查有无未被引用的多余图片
+  img_count=$(ls "$dir/images/" 2>/dev/null | wc -l)
+  ref_count=$(grep -oP '\]\(images/\K[^)]+' "${md_files[0]}" | sort -u | wc -l)
+  echo "$dir: 图片=$img_count, 引用=$ref_count"
 done
 ```
 
 确认结果：
 - 每个目录至少 1 个 `.md` 文件
-- 每个目录有 `images/` 且图片数量 > 0
-- `.md` 中的 `![](images/...)` 引用图片数 ≤ `images/` 中实际图片数（引用可以少于实际，但不应多于实际）
+- 每个目录有 `images/` 目录
+- `.md` 中引用的每张图片在 `images/` 中都存在
+- `images/` 中的图片数量 = 被引用的不重复图片数量（即没有多余图片）
 - 源目录未被修改（目录名和文件名与原样一致）
 
 ---

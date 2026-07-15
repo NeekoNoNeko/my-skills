@@ -58,16 +58,24 @@ foreach ($src in $ChapterMapping.Keys) {
         Write-Warning "$src 中未找到 full.md"
     }
 
-    # 复制 images/ 文件夹（保持相对路径一致）
+    # 复制 images/ 中 .md 实际引用的图片
     $imgSrc = Join-Path $srcPath "images"
-    if (Test-Path $imgSrc) {
-        Copy-Item -Path $imgSrc -Destination $outPath -Recurse -Force
-        $imgCount = (Get-ChildItem (Join-Path $outPath "images") -Filter "*.jpg" | Measure-Object).Count
-    } else {
-        $imgCount = 0
+    $mdContent = Get-Content -Path $mdSrc -Raw
+    $refs = [regex]::Matches($mdContent, '\]\(images/([^)]+)') | ForEach-Object { $_.Groups[1].Value } | Sort-Object -Unique
+    $imgDest = Join-Path $outPath "images"
+    New-Item -ItemType Directory -Path $imgDest -Force | Out-Null
+    $copiedCount = 0
+    foreach ($img in $refs) {
+        $imgFile = Join-Path $imgSrc $img
+        if (Test-Path $imgFile) {
+            Copy-Item -Path $imgFile -Destination (Join-Path $imgDest $img) -Force
+            $copiedCount++
+        } else {
+            Write-Warning "$chapterName: 引用的图片未找到: $img"
+        }
     }
 
-    Write-Host "✅ $chapterName ($imgCount 张图片)"
+    Write-Host "✅ $chapterName (复制 $copiedCount 张引用图片)"
     $count++
 }
 

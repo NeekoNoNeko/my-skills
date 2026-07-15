@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # 验证输出目录的结构完整性。
 # 检查每个章节目录是否包含 .md 文件、images/ 文件夹，
-# 并抽查图片引用是否有效。
+# 检查被引用的图片是否都存在，并警告多余图片。
 # 用法: ./verify.sh <输出目录路径>
 
 BASE="${1:-.}"
@@ -32,12 +32,18 @@ for dir in "$BASE"/*/; do
         continue
     fi
 
-    img_count=$(ls "$dir/images/"*.jpg 2>/dev/null | wc -l)
-
-    # 检查 .md 中的图片引用
+    img_count=$(ls "$dir/images/" 2>/dev/null | wc -l)
     md_refs=$(grep -c '](images/' "${md_files[0]}" 2>/dev/null || echo "0")
+    unique_refs=$(grep -oP '\]\(images/\K[^)]+' "${md_files[0]}" 2>/dev/null | sort -u | wc -l)
 
-    echo "✅ $dname: $md_name, images=$img_count, 引用数=$md_refs"
+    # 检查是否有未被引用的多余图片
+    extra_imgs=0
+    if [ "$img_count" -gt "$unique_refs" ]; then
+        extra_imgs=$((img_count - unique_refs))
+        echo "⚠️  $dname: 有 $extra_imgs 张未被引用的多余图片"
+    fi
+
+    echo "✅ $dname: $md_name, 图片=$img_count, 唯一引用=$unique_refs"
 done
 
 echo ""
