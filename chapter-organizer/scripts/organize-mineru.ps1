@@ -71,7 +71,7 @@ foreach ($src in $ChapterMapping.Keys) {
             Copy-Item -Path $imgFile -Destination (Join-Path $imgDest $img) -Force
             $copiedCount++
         } else {
-            Write-Warning "$chapterName: 引用的图片未找到: $img"
+            Write-Warning "$($chapterName): 引用的图片未找到: $img"
         }
     }
 

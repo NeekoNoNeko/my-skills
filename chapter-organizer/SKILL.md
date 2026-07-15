@@ -137,6 +137,8 @@ $chapters = @{
 .\scripts\organize-mineru.ps1 -SourceDir "源目录路径" -OutputDir "源目录路径/Book-Name" -ChapterMapping $chapters
 ```
 
+> ⚠️ **PowerShell 字符串插坑点**：脚本中如果写 `"$chapterName: 文本"`，PowerShell 会把 `$chapterName:` 解析成驱动器限定引用（类似 `$env:Path`），导致报错 `InvalidVariableReferenceWithDrive`。**解决办法**：用 `$()` 子表达式包裹变量，写成 `"$($chapterName): 文本"`。当前脚本已采用此写法。
+
 或手工执行：
 
 ```bash
